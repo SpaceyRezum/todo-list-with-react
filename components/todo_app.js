@@ -10,44 +10,44 @@ var TodoApp = React.createClass({
         { name: "Do Full-stack homework", completed: false, edit: false }
       ],
       newTodo: '',
-      todosFiltered: false,
-      // preFilteredList is defined to store the todos list prior filtering
-      preFilteredList: []
+      showComplete: true
     }
   },
 
   render: function() {
     // in order to keep refering to the main react class, I saved it as self ahead of the filter function
     var self = this;
+    var filteredTodos;
+    if (this.state.showComplete) {
+      filteredTodos = this.state.todos;
+    } else {
+      filteredTodos = this.state.todos.filter(todo => !todo.completed);
+    }
+
     // everytime render runs, todosIncomplete re-calculates the amount of incomplete tasks left
-    var todosIncomplete = self.state.todos.filter(function(todo){if(todo.completed === false){return todo;}});
+    var incompleteTodos = filteredTodos.filter((todo) => !todo.completed);
     return <div className='todo-list'>
 
       <header className='todo-header'>
-        { todosIncomplete.length > 0 ? (
-          todosIncomplete.length + " Things to Do" ):( 
+        { incompleteTodos.length > 0 ? (
+          incompleteTodos.length + " Things to Do" ):( 
           "You are out of stuff to do, yay!")}
       </header>
 
-      { self.state.todos.map(function(todo, index) {
-        // here I used self to refer to the react object, otherwise 
-        // this would refer to the curent function in map
+      { filteredTodos.map(function(todo, index) {
         return (
           <div className={ todo.completed ? 'row completed' : 'row' } key={ index }>
             <div className='col-md-2 todo-check'>
-              <input 
-              type='checkbox' 
-              checked={ todo.completed }
-              onChange= { () => self.toggleChecked(index) }/>
+              <input type='checkbox' 
+                     checked={ todo.completed }
+                     onChange= { () => self.toggleChecked(index) }/>
             </div>
             <div className='col-md-10'>
-              <input
-                type='textbox'
-                value={ todo.name }
-                disabled={ !todo.edit }
-                className= { todo.edit ? "focus" : "" }
-                onChange={ (evt) => self.updateToDo(evt, index) }
-              />
+              <input type='textbox'
+                     value={ todo.name }
+                     disabled={ !todo.edit }
+                     className= { todo.edit ? "focus" : "" }
+                     onChange={ (evt) => self.updateToDo(evt, index) }/>
               &nbsp;
               <button className="btn glyphicon glyphicon-pencil" 
                       onClick={function(evt){ self.toggleEdit(index); self.toggleHover(evt); }} 
@@ -79,7 +79,9 @@ var TodoApp = React.createClass({
       </div>
       
       <div className="filter">
-        <button className="btn btn-primary filter" onClick={ self.filterToDos }>{ !self.state.todosFiltered ? "Filter Completed To-Dos" : "Clear Filter" }</button>
+        <button className="btn btn-primary filter" onClick={ self.toggleCompleteView }>
+          { self.state.showComplete ? "Filter Completed To-Dos" : "Clear Filter" }
+        </button>
       </div>
 
     </div>
@@ -97,9 +99,6 @@ var TodoApp = React.createClass({
     this.setState({
       // concat represents todos.push(newTodo) & this.setState({ todos: todos })
       todos: todos.concat([newTodo]),
-      // in case the filter is on, I add newTodo to preFilteredList so whenever we reattached 
-      // preFilteredList to todos, we do not lose our newly added todo items
-      preFilteredList: preFilteredList.concat([newTodo]), 
       newTodo: ''
     })
   },
@@ -110,22 +109,11 @@ var TodoApp = React.createClass({
     this.setState({ todos: todos });
   },
 
-  filterToDos: function() {
-    var todos = this.state.todos;
-    var preFilteredList = this.state.preFilteredList;
-    var filteredList = todos.filter(function(todo){if (todo.completed === false) {return todo;}});
-    if (!this.state.todosFiltered) {
-      this.setState({
-        // stores todos in preFilteredList
-        preFilteredList: todos,
-        todos: filteredList,
-        todosFiltered: true });
+  toggleCompleteView: function() {
+    if (this.state.showComplete) {
+      this.setState({ showComplete: false });
     } else {
-      this.setState({
-        // reset the prio-filtering todos state by replacing current todos by preFilteredList 
-        todos: preFilteredList,
-        preFilteredList: [],
-        todosFiltered: false });
+      this.setState({ showComplete: true });
     }
   },
 
