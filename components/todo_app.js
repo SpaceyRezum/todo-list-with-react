@@ -1,4 +1,8 @@
 import React from 'react';
+import TodoHeader from './todo-header.js';
+import Todo from './todo.js';
+import AddTodo from './add-todo.js';
+import Filter from './filter.js';
 
 var TodoApp = React.createClass({
   self : this,
@@ -15,8 +19,6 @@ var TodoApp = React.createClass({
   },
 
   render: function() {
-    // in order to keep refering to the main react class, I saved it as self ahead of the filter function
-    var self = this;
     var filteredTodos;
     if (this.state.showComplete) {
       filteredTodos = this.state.todos;
@@ -28,68 +30,32 @@ var TodoApp = React.createClass({
     var incompleteTodos = filteredTodos.filter((todo) => !todo.completed);
     return <div className='todo-list'>
 
-      <header className='todo-header'>
-        { incompleteTodos.length > 0 ? (
-          incompleteTodos.length + " Things to Do" ):( 
-          "You are out of stuff to do, yay!")}
-      </header>
+      <TodoHeader incompleteTodos={ incompleteTodos } />
 
-      { filteredTodos.map(function(todo, index) {
-        return (
-          <div className={ todo.completed ? 'row completed' : 'row' } key={ index }>
-            <div className='col-md-2 todo-check'>
-              <input type='checkbox' 
-                     checked={ todo.completed }
-                     onChange= { () => self.toggleChecked(index) }/>
-            </div>
-            <div className='col-md-10'>
-              <input type='textbox'
-                     value={ todo.name }
-                     disabled={ !todo.edit }
-                     className= { todo.edit ? "focus" : "" }
-                     onChange={ (evt) => self.updateToDo(evt, index) }/>
-              &nbsp;
-              <button className="btn glyphicon glyphicon-pencil" 
-                      onClick={function(evt){ self.toggleEdit(index); self.toggleHover(evt); }} 
-                      onMouseEnter={ (evt) => self.toggleHover(evt) }
-                      onMouseLeave={ (evt) => self.toggleHover(evt) }
-                      type="button">
-              </button>
-              <button className="btn glyphicon glyphicon-remove" 
-                      onClick={ () => self.deleteTodo(index)} 
-                      onMouseEnter={ (evt) => self.toggleHover(evt) }
-                      onMouseLeave={ (evt) => self.toggleHover(evt) }
-                      type="button">
-              </button>
-            </div> 
-          </div>
-        )
-      }) }
+      { filteredTodos.map((todo, index) => (
+          <Todo todo={ todo } 
+                key={ index } 
+                onChecked={ () => this.toggleChecked(index) }
+                onButtonHover={ (evt) => this.toggleHover(evt) } 
+                onEditButtonClick= { () => this.toggleEdit(index) } 
+                onDeleteButtonClick= { () => this.deleteTodo(index) } 
+                onUpdateText= { (evt) => this.updateToDo(evt, index) }/>
+          )
+        ) 
+      }
 
-      <div className='row new-todo'>
-        <div className='col-md-2'></div>
-        <div className='col-md-9'>
-          <div className="input-group">
-            <input type="text" className="form-control" onChange={ self.updateInputField } value={ self.state.newTodo }/>
-            <span className="input-group-btn">
-              <button className="btn btn-primary" onClick={ self.addTodo } type="button">Add</button>
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      <div className="filter">
-        <button className="btn btn-primary filter" onClick={ self.toggleCompleteView }>
-          { self.state.showComplete ? "Filter Completed To-Dos" : "Clear Filter" }
-        </button>
-      </div>
+      <AddTodo newTodo={ this.state.newTodo } 
+               onUpdateField={ (evt) => this.updateInputField(evt) } 
+               onAddNewTodo={ () => this.addTodo() } />
+
+      <Filter showComplete={ this.state.showComplete } 
+              onToggleFilter={ () => this.toggleCompleteView() }/>
 
     </div>
   }, 
 
   addTodo: function() {
     var todos = this.state.todos;
-    var preFilteredList = this.state.preFilteredList;
     var newTodo = { 
       name: this.state.newTodo, 
       completed: false,
