@@ -13,7 +13,6 @@ var TodoApp = React.createClass({
         { name: "Mow the lawn", completed: false, edit: false },
         { name: "Do Full-stack homework", completed: false, edit: false }
       ],
-      newTodo: '',
       showComplete: true
     }
   },
@@ -39,14 +38,12 @@ var TodoApp = React.createClass({
                 onButtonHover={ (evt) => this.toggleHover(evt) } 
                 onEditButtonClick= { () => this.toggleEdit(index) } 
                 onDeleteButtonClick= { () => this.deleteTodo(index) } 
-                onUpdateText= { (evt) => this.updateToDo(evt, index) }/>
+                onUpdateText= { (newText) => this.updateToDo(newText, index) }/>
           )
         ) 
       }
 
-      <AddTodo newTodo={ this.state.newTodo } 
-               onUpdateField={ (evt) => this.updateInputField(evt) } 
-               onAddNewTodo={ () => this.addTodo() } />
+      <AddTodo onAddNewTodo={ (name) => this.addTodo(name) } />
 
       <Filter showComplete={ this.state.showComplete } 
               onToggleFilter={ () => this.toggleCompleteView() }/>
@@ -54,18 +51,17 @@ var TodoApp = React.createClass({
     </div>
   }, 
 
-  addTodo: function() {
+  addTodo: function(name) {
     var todos = this.state.todos;
     var newTodo = { 
-      name: this.state.newTodo, 
+      name: name, 
       completed: false,
       edit: false
     };
 
     this.setState({
       // concat represents todos.push(newTodo) & this.setState({ todos: todos })
-      todos: todos.concat([newTodo]),
-      newTodo: ''
+      todos: todos.concat([newTodo])
     })
   },
 
@@ -101,15 +97,12 @@ var TodoApp = React.createClass({
     evt.target.classList.toggle("hover");
   },
 
-  updateToDo: function(evt, todoId) {
+  updateToDo: function(newText, todoId) {
     var todos = this.state.todos;
-    todos[todoId].name = evt.target.value;
+    todos[todoId].name = newText;
     this.setState({ todos: todos });
-  },
-
-  updateInputField: function(evt) {
-    this.setState({ newTodo: evt.target.value });
   }
+
 })
 
 export default TodoApp;

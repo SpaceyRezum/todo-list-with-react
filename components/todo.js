@@ -15,7 +15,7 @@ var Todo = React.createClass({
                  value={ this.props.todo.name }
                  disabled={ !this.props.todo.edit }
                  className= { this.props.todo.edit ? 'focus' : '' }
-                 onChange={ (evt) => this.props.onUpdateText(evt) }/>
+                 onChange={ (evt) => this.props.onUpdateText(evt.target.value) }/>
           &nbsp;
           <button className='btn glyphicon glyphicon-pencil' 
                   onClick={ (evt) => { this.props.onEditButtonClick(); this.props.onButtonHover(evt); } } 
